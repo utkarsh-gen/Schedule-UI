@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tempo – Schedule &amp; time log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#030806;--ink:#e6f6ee;--mute:#86a396;--g:#4ade80;--line:rgba(190,255,220,.11);--glass:rgba(255,255,255,.045);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Figtree,system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+ radial-gradient(45% 40% at 12% 8%,rgba(34,197,94,.28),transparent 70%),
+ radial-gradient(40% 45% at 92% 20%,rgba(16,120,80,.32),transparent 70%),
+ radial-gradient(50% 40% at 60% 105%,rgba(74,222,128,.18),transparent 70%),var(--bg)}
+h1,h2,h3,.num{font-family:"Bricolage Grotesque",Figtree,sans-serif;margin:0;letter-spacing:-.02em}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+.glass{background:var(--glass);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 20px 50px -25px rgba(0,0,0,.8);border-radius:20px;padding:20px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.top h1{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1}
+.top p{margin:10px 0 0;color:var(--mute)}
+.top b{color:var(--g);font-weight:600}
+.btn{border:0;cursor:pointer;font:600 14px Figtree,sans-serif;padding:12px 20px;border-radius:999px;background:linear-gradient(135deg,#86efac,#22c55e);color:#04210f;box-shadow:0 8px 30px -8px rgba(74,222,128,.6)}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.btn.ghost{background:var(--glass);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.stat{padding:16px;border-radius:16px;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.stat .l{color:var(--mute);font-size:13px}
+.stat .num{font-size:26px;font-weight:600;margin:2px 0 6px}
+.stat svg{width:100%;height:30px;display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-bottom:16px}
+.s5{grid-column:span 5}.s7{grid-column:span 7}.s12{grid-column:1/-1}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.card-h h2{font-size:20px;font-weight:600}.card-h span{color:var(--mute);font-size:13px}
+.ringbox{position:relative;max-width:400px;margin:0 auto}
+.ringbox svg{width:100%;height:auto;display:block}
+.center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.center .num{font-size:clamp(32px,6vw,46px);font-weight:800}
+.center small{color:var(--mute)}
+.arc{fill:none;stroke-linecap:round;stroke-width:20}
+.in .arc{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s cubic-bezier(.3,.7,.2,1) forwards;animation-delay:calc(var(--i)*.12s)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pulse{animation:pl 2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pl{to{transform:scale(2.6);opacity:0}}
+.tl{list-style:none;margin:0;padding:0;max-height:430px;overflow:auto}
+.tl li{display:grid;grid-template-columns:52px 14px 1fr;gap:10px;padding-bottom:12px}
+.tl .t{color:var(--mute);font-size:13px;text-align:right;padding-top:12px}
+.tl .d{position:relative}
+.tl .d::before{content:"";position:absolute;left:6px;top:0;bottom:-12px;width:1px;background:var(--line)}
+.tl .d i{position:absolute;left:1px;top:15px;width:11px;height:11px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.ev{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:14px;padding:11px 14px}
+.ev.live{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 30px -8px var(--c)}
+.ev h3{font-size:16px;font-weight:600}
+.ev p{margin:3px 0 0;color:var(--mute);font-size:13px}
+.badge{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 30%,transparent);white-space:nowrap}
+.empty{text-align:center;padding:40px 10px;color:var(--mute)}
+.empty b{display:block;color:var(--ink);font:600 20px "Bricolage Grotesque",sans-serif;margin-bottom:6px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--mute);font:12px Figtree,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:13px;color:var(--mute)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;background:var(--c)}
+.donut{display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:18px;align-items:center}
+.dl{display:grid;gap:8px;font-size:14px}
+.dl div{display:flex;justify-content:space-between;gap:8px}
+.dl i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;background:var(--c)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--mute);font:500 13px Figtree,sans-serif;padding:5px 13px;border-radius:999px}
+.chip[aria-pressed=true]{background:rgba(74,222,128,.16);color:var(--ink);border-color:rgba(74,222,128,.5)}
+.tw{overflow-x:auto;max-height:420px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th{position:sticky;top:0;background:rgba(6,16,11,.85);backdrop-filter:blur(10px);text-align:left;font-weight:500;color:var(--mute);font-size:13px;padding:10px 12px}
+td{padding:11px 12px;border-top:1px solid var(--line);font-size:14px;white-space:nowrap}
+tbody tr:hover{background:rgba(74,222,128,.05)}
+.bar{display:inline-block;height:6px;border-radius:9px;background:var(--c);vertical-align:middle;margin-right:8px}
+dialog{border:1px solid var(--line);border-radius:24px;background:rgba(8,20,14,.82);backdrop-filter:blur(26px);color:var(--ink);padding:24px;width:min(460px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+dialog h2{font-size:24px;margin-bottom:14px}
+form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+.full{grid-column:1/-1}
+input,select,textarea{font:inherit;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%}
+select option{background:#0a1a12}
+.acts{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.loading .glass{color:transparent;background:linear-gradient(100deg,rgba(255,255,255,.03) 30%,rgba(74,222,128,.09) 50%,rgba(255,255,255,.03) 70%) 0 0/200% 100%;animation:sh 1.2s infinite}
+.loading .glass *{visibility:hidden}
+@keyframes sh{to{background-position:-200% 0}}
+@media(max-width:960px){.stats{grid-template-columns:repeat(2,1fr)}.s5,.s7{grid-column:1/-1}.donut{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.in .arc{stroke-dashoffset:0}}
+</style>
+</head>
+<body class="loading">
+<div class="wrap">
+  <header class="top">
+    <div><h1 id="day"></h1><p id="sub"></p></div>
+    <button class="btn" id="open">Log activity</button>
+  </header>
+  <section class="stats" id="stats" aria-label="Today by category"></section>
+  <div class="grid">
+    <section class="glass s5"><div class="card-h"><h2>Your day, around the clock</h2><span>24 hours</span></div><div class="ringbox" id="ring"></div></section>
+    <section class="glass s7"><div class="card-h"><h2>Today’s timeline</h2><span id="tlc"></span></div><ul class="tl" id="tl"></ul></section>
+    <section class="glass s7 chart"><div class="card-h"><h2>Hours per day</h2><span>Last 7 days</span></div><div id="week"></div><div class="legend" id="lg"></div></section>
+    <section class="glass s5"><div class="card-h"><h2>Where the week went</h2><span>Share by category</span></div><div class="donut" id="donut"></div></section>
+  </div>
+  <section class="glass s12">
+    <div class="card-h"><h2>All entries</h2><div class="chips" id="chips"></div></div>
+    <div class="tw"><table><thead><tr><th>Activity</th><th>Category</th><th>Date</th><th>Time</th><th>Duration</th><th>Place</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+</div>
+
+<dialog id="dlg"><h2>Log activity</h2>
+<form id="f" method="dialog">
+  <label class="full">Title<input name="title" required placeholder="Deep Learning Course"></label>
+  <label>Category<select name="category"></select></label>
+  <label>Date<input type="date" name="date" required></label>
+  <label>Start<input type="time" name="startTime" required></label>
+  <label>End<input type="time" name="endTime" required></label>
+  <label class="full">Place<input name="place" placeholder="Optional"></label>
+  <label class="full">Notes<textarea name="notes" rows="2" placeholder="Optional"></textarea></label>
+  <div class="acts full"><button type="button" class="btn ghost" id="cancel">Cancel</button><button class="btn" type="submit">Save entry</button></div>
+</form></dialog>
+
+<script>
+/* Reference data in the exact Firestore `schedule` shape.
+   In production, replace E with onSnapshot(query(collection(db,'schedule'),orderBy('date','desc'),orderBy('startTime','asc')), snap => { E = snap.docs.map(d=>({id:d.id,...d.data()})); render(); }) */
+const C={study:{n:'Study',c:'#5eead4'},ai_work:{n:'AI work',c:'#4ade80'},learning:{n:'Learning',c:'#bef264'},other_work:{n:'Other work',c:'#38bdf8'},personal:{n:'Personal',c:'#fcd34d'},break:{n:'Break',c:'#94a3b8'}};
+const K=Object.keys(C),pad=n=>String(n).padStart(2,'0'),$=s=>document.querySelector(s);
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const mins=t=>{const[h,m]=t.split(':');return +h*60+ +m};
+const hm=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+const fmt=m=>{const h=Math.floor(m/60),r=m%60;return h?`${h}h${r?' '+r+'m':''}`:`${r}m`};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dayOf=o=>{const d=new Date();d.setDate(d.getDate()-o);return d};
+let E=[],seq=0,filter='all',first=true;
+const add=(o,category,title,s,dur,place,notes)=>{const e=mins(s)+dur;E.push({id:'e'+seq++,category,title,startTime:s,endTime:hm(e),date:iso(dayOf(o)),place,notes,durationMinutes:dur})};
+[['personal','Morning run','06:30',45,'Riverside'],['ai_work','Fine-tune embedding model','08:00',150,'Home desk'],['break','Tea and stretch','10:30',15],['study','Linear algebra problem set','10:45',105,'City library'],['learning','Deep Learning Course, week 6','13:30',90,'Home desk'],['other_work','Client invoice review','15:00',90],['ai_work','Prompt eval harness','17:00',60,'Home desk']].forEach(a=>add(0,...a));
+for(let o=1;o<7;o++){add(o,'ai_work','Model evaluation','09:00',90+(o*35)%120,'Home desk');add(o,'study','Statistics reading','11:30',60+(o*25)%70,'City library');add(o,'learning','Course lectures','14:00',45+(o*20)%80);add(o,'break','Lunch walk','13:00',30);if(o%2)add(o,'other_work','Admin and email','16:00',60);if(o%3)add(o,'personal','Gym','18:30',60,'Fitness club')}
+const today=()=>iso(new Date());
+const sum=(list,cat)=>list.filter(e=>!cat||e.category===cat).reduce((a,e)=>a+e.durationMinutes,0);
+
+const ds=Array.from({length:7},(_,i)=>iso(dayOf(6-i)));
+const P=(a,r)=>{const t=(a-90)*Math.PI/180;return[180+r*Math.cos(t),180+r*Math.sin(t)]};
+const arc=(m1,m2,r)=>{const[x1,y1]=P(m1/4,r),[x2,y2]=P(m2/4,r);return`M${x1.toFixed(1)} ${y1.toFixed(1)}A${r} ${r} 0 ${(m2-m1)/4>180?1:0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`};
+
+function render(){
+  const T=E.filter(e=>e.date===today()).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  const now=new Date(),nm=now.getHours()*60+now.getMinutes(),tot=sum(T);
+  $('#day').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  $('#sub').innerHTML=T.length?`<b>${fmt(tot)}</b> logged across ${T.length} ${T.length>1?'entries':'entry'} today`:'Nothing logged yet today';
+
+  $('#stats').innerHTML=K.map(k=>{
+    const v=ds.map(d=>sum(E.filter(e=>e.date===d),k)),mx=Math.max(...v,1);
+    const pts=v.map((x,i)=>`${i*100/6},${28-x/mx*24}`).join(' ');
+    return`<div class="glass stat" style="--c:${C[k].c}"><div class="l">${C[k].n}</div><div class="num">${fmt(sum(T,k))||'0m'}</div><svg viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${C[k].c}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg></div>`}).join('');
+
+  let r=`<svg viewBox="0 0 360 360" role="img" aria-label="24 hour ring of today's activities"><circle cx="180" cy="180" r="140" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="20"/>`;
+  for(let h=0;h<24;h++){const[a,b]=P(h*15,h%6?158:162),[c,d]=P(h*15,170);r+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="rgba(255,255,255,${h%6?.12:.35})"/>`}
+  [0,6,12,18].forEach(h=>{const[x,y]=P(h*15,190);r+=`<text x="${Math.min(Math.max(x,14),346)}" y="${y+4}" text-anchor="middle" fill="#86a396" font-size="12">${pad(h)}</text>`});
+  T.forEach((e,i)=>{r+=`<path class="arc" pathLength="1" style="--i:${i}" stroke="${C[e.category].c}" d="${arc(mins(e.startTime)+4,Math.max(mins(e.endTime)-4,mins(e.startTime)+5),140)}"><title>${esc(e.title)} · ${e.startTime}–${e.endTime}</title></path>`});
+  const[nx,ny]=P(nm/4,140);r+=`<circle class="pulse" cx="${nx}" cy="${ny}" r="5" fill="#fff"/><circle cx="${nx}" cy="${ny}" r="5" fill="#fff"/></svg>`;
+  const cur=T.find(e=>mins(e.startTime)<=nm&&nm<mins(e.endTime));
+  r+=`<div class="center"><div class="num">${fmt(tot)||'0m'}</div><small>${cur?'Now: '+esc(cur.title):'logged today'}</small></div>`;
+  const rb=$('#ring');rb.innerHTML=r;if(first)rb.classList.add('in');
+
+  $('#tlc').textContent=T.length?`${T.length} entries`:'';
+  $('#tl').innerHTML=T.length?T.map(e=>`<li style="--c:${C[e.category].c}"><div class="t">${e.startTime}<br>${e.endTime}</div><div class="d"><i></i></div><div class="ev ${e===cur?'live':''}"><h3>${esc(e.title)}</h3><p><span class="badge">${C[e.category].n}</span> &nbsp;${fmt(e.durationMinutes)}${e.place?' at '+esc(e.place):''}</p></div></li>`).join(''):`<li style="display:block"><div class="empty"><b>A clean slate</b>Nothing logged today. Add your first activity to start the ring.</div></li>`;
+
+  const W=ds.map(d=>K.map(k=>sum(E.filter(e=>e.date===d),k))),mx=Math.max(...W.map(a=>a.reduce((x,y)=>x+y,0)),60),H=Math.ceil(mx/60);
+  let w=`<svg viewBox="0 0 560 240" role="img" aria-label="Stacked hours per day">`;
+  for(let g=0;g<=H;g+=Math.max(1,Math.ceil(H/4))){const y=200-g*60/(H*60)*180;w+=`<line x1="34" x2="550" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="26" y="${y+4}" text-anchor="end">${g}h</text>`}
+  ds.forEach((d,i)=>{let y=200;const x=48+i*73;W[i].forEach((m,j)=>{const h=m/(H*60)*180;if(!h)return;y-=h;w+=`<rect x="${x}" y="${y}" width="44" height="${h-1.5}" rx="5" fill="${C[K[j]].c}" opacity="${d===today()?1:.62}"><title>${C[K[j]].n}: ${fmt(m)}</title></rect>`});
+    w+=`<text x="${x+22}" y="222" text-anchor="middle" ${d===today()?'style="fill:#e6f6ee;font-weight:600"':''}>${new Date(d+'T00:00').toLocaleDateString('en-US',{weekday:'short'})}</text>`});
+  $('#week').innerHTML=w+'</svg>';
+  $('#lg').innerHTML=K.map(k=>`<span><i style="--c:${C[k].c};display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;background:var(--c)"></i>${C[k].n}</span>`).join('');
+
+  const WK=E.filter(e=>ds.includes(e.date)),wt=sum(WK)||1;let off=0;
+  const R=70,L=2*Math.PI*R;
+  let dn=`<svg viewBox="0 0 180 180" style="width:100%;transform:rotate(-90deg)"><circle cx="90" cy="90" r="${R}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="22"/>`;
+  K.forEach(k=>{const f=sum(WK,k)/wt*L;dn+=`<circle cx="90" cy="90" r="${R}" fill="none" stroke="${C[k].c}" stroke-width="22" stroke-dasharray="${Math.max(f-2,0)} ${L}" stroke-dashoffset="${-off}"/>`;off+=f});
+  dn+=`<text x="90" y="90" transform="rotate(90 90 90)" text-anchor="middle" dominant-baseline="central" fill="#e6f6ee" font-family="Bricolage Grotesque,sans-serif" font-size="26" font-weight="800">${Math.round(wt/60)}h</text></svg>`;
+  $('#donut').innerHTML=dn+`<div class="dl">${K.map(k=>`<div style="--c:${C[k].c}"><span><i></i>${C[k].n}</span><b>${Math.round(sum(WK,k)/wt*100)}%</b></div>`).join('')}</div>`;
+
+  $('#chips').innerHTML=['all',...K].map(k=>`<button class="chip" data-k="${k}" aria-pressed="${filter===k}">${k==='all'?'All':C[k].n}</button>`).join('');
+  const rows=E.filter(e=>filter==='all'||e.category===filter).sort((a,b)=>b.date.localeCompare(a.date)||a.startTime.localeCompare(b.startTime));
+  $('#rows').innerHTML=rows.length?rows.map(e=>`<tr style="--c:${C[e.category].c}"><td>${esc(e.title)}</td><td><span class="badge">${C[e.category].n}</span></td><td>${new Date(e.date+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td>${e.startTime} – ${e.endTime}</td><td><span class="bar" style="width:${Math.min(e.durationMinutes/3,60)}px"></span>${fmt(e.durationMinutes)}</td><td>${esc(e.place)||'<span style="color:var(--mute)">None</span>'}</td></tr>`).join(''):`<tr><td colspan="6"><div class="empty"><b>No entries in this category</b>Pick another filter or log a new activity.</div></td></tr>`;
+  first=false;
+}
+
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b){filter=b.dataset.k;render()}});
+const dlg=$('#dlg'),f=$('#f');
+f.category.innerHTML=K.map(k=>`<option value="${k}">${C[k].n}</option>`).join('');
+$('#open').onclick=()=>{f.date.value=today();dlg.showModal()};
+$('#cancel').onclick=()=>dlg.close();
+f.addEventListener('submit',ev=>{
+  const v=Object.fromEntries(new FormData(f));
+  const d=mins(v.endTime)-mins(v.startTime);
+  if(d<=0){ev.preventDefault();f.endTime.setCustomValidity('End must be after start');f.endTime.reportValidity();return}
+  E.push({id:'e'+seq++,category:v.category,title:v.title,startTime:v.startTime,endTime:v.endTime,date:v.date,place:v.place||undefined,notes:v.notes||undefined,durationMinutes:d});
+  f.reset();render();
+});
+f.endTime.addEventListener('input',()=>f.endTime.setCustomValidity(''));
+render();
+setTimeout(()=>document.body.classList.remove('loading'),700);
+setInterval(render,60000);
+</script>
+</body>
+</html>
