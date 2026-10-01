@@ -1,6 +1,6 @@
 export interface ScheduleEntry {
   id: string;
-  category: "study" | "ai_work" | "learning" | "other_work" | "personal" | "break";
+  category: "study" | "ai_work" | "learning" | "other_work" | "personal" | "content";
   title: string;
   description?: string;
   startTime: string; // HH:mm
@@ -17,7 +17,7 @@ export const CATEGORIES = {
   learning: { n: 'Learning', c: '#bef264' },
   other_work: { n: 'Other work', c: '#38bdf8' },
   personal: { n: 'Personal', c: '#fcd34d' },
-  break: { n: 'Break', c: '#94a3b8' }
+  content: { n: 'Content', c: '#f43f5e' }
 } as const;
 
 export type CategoryKey = keyof typeof CATEGORIES;
