@@ -6,6 +6,7 @@ import { ScheduleEntry, CATEGORIES, CategoryKey } from '@/lib/types';
 import RingChart from '@/components/RingChart';
 import BarChart from '@/components/BarChart';
 import DonutChart from '@/components/DonutChart';
+import WeeklyCategoryList from '@/components/WeeklyCategoryList';
 import { ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -180,6 +181,14 @@ export default function Home() {
               <DonutChart entries={entries} />
             </section>
           </div>
+
+          <section className="glass mb-4">
+            <div className="card-h mb-4">
+              <h2 className="text-[20px] font-semibold font-heading tracking-tight">Weekly Category Breakdown</h2>
+              <span className="text-[var(--mute)] text-[13px]">Last 7 days exact hours</span>
+            </div>
+            <WeeklyCategoryList entries={entries} />
+          </section>
 
           <section className="glass">
             <div className="card-h mb-4">
