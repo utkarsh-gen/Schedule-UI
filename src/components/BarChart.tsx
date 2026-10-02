@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { CATEGORIES, CategoryKey, ScheduleEntry } from '@/lib/types';
 
 const fmt = (m: number) => { const h = Math.floor(m / 60), r = m % 60; return h ? `${h}h${r ? ' ' + r + 'm' : ''}` : `${r}m`; };
@@ -6,6 +7,7 @@ const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart
 const dayOf = (o: number) => { const d = new Date(); d.setDate(d.getDate() - o); return d; };
 
 export default function BarChart({ entries }: { entries: ScheduleEntry[] }) {
+  const [tooltip, setTooltip] = useState<{ v: boolean, x: number, y: number, t: string, c: string }>({ v: false, x: 0, y: 0, t: '', c: '' });
   const K = Object.keys(CATEGORIES) as CategoryKey[];
   const ds = Array.from({ length: 7 }, (_, i) => iso(dayOf(6 - i)));
   
@@ -34,9 +36,20 @@ export default function BarChart({ entries }: { entries: ScheduleEntry[] }) {
       if (!h) return null;
       y -= h;
       return (
-        <rect key={`${i}-${j}`} x={x} y={y} width="44" height={h - 1.5} rx="5" fill={CATEGORIES[K[j]].c} opacity={d === iso(new Date()) ? 1 : 0.62}>
-          <title>{CATEGORIES[K[j]].n}: {fmt(m)}</title>
-        </rect>
+        <rect 
+          key={`${i}-${j}`} 
+          x={x} 
+          y={y} 
+          width="44" 
+          height={h - 1.5} 
+          rx="5" 
+          fill={CATEGORIES[K[j]].c} 
+          opacity={d === iso(new Date()) ? 1 : 0.62}
+          onMouseEnter={(e) => setTooltip({ v: true, x: e.clientX, y: e.clientY, t: `${CATEGORIES[K[j]].n}: ${fmt(m)}`, c: CATEGORIES[K[j]].c })}
+          onMouseMove={(e) => setTooltip({ v: true, x: e.clientX, y: e.clientY, t: `${CATEGORIES[K[j]].n}: ${fmt(m)}`, c: CATEGORIES[K[j]].c })}
+          onMouseLeave={() => setTooltip(p => ({ ...p, v: false }))}
+          className="transition-opacity duration-200 hover:opacity-100 cursor-pointer"
+        />
       );
     });
 
@@ -51,7 +64,7 @@ export default function BarChart({ entries }: { entries: ScheduleEntry[] }) {
   });
 
   return (
-    <div>
+    <div className="relative">
       <svg viewBox="0 0 560 240" role="img" aria-label="Stacked hours per day" className="w-full h-auto block">
         {gridLines}
         {bars}
@@ -63,6 +76,24 @@ export default function BarChart({ entries }: { entries: ScheduleEntry[] }) {
             {CATEGORIES[k].n}
           </span>
         ))}
+      </div>
+      
+      {/* Tooltip */}
+      <div 
+        className={`fixed pointer-events-none z-50 px-3 py-1.5 rounded-lg shadow-xl text-[13px] font-medium transition-all duration-200 ${tooltip.v ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ 
+          left: tooltip.x, 
+          top: tooltip.y,
+          translate: '-50% -120%',
+          backgroundColor: '#1c1c1e',
+          border: `1px solid ${tooltip.c}50`,
+          color: '#ffffff'
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tooltip.c }}></div>
+          {tooltip.t}
+        </div>
       </div>
     </div>
   );
