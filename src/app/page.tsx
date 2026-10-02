@@ -60,6 +60,7 @@ export default function Home() {
     <div className="max-w-[1240px] mx-auto px-5 pt-7 pb-15">
       <header className="flex justify-between items-end gap-4 flex-wrap mb-6">
         <div>
+          <a href="/routine" className="text-[14px] text-[var(--mute)] hover:text-white transition-colors mb-2 inline-block underline underline-offset-4">View General Routine &rarr;</a>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-[clamp(30px,5vw,52px)] font-[800] leading-none font-heading tracking-tight">
               {currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
