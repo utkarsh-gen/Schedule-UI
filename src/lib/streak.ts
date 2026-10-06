@@ -1,5 +1,7 @@
 import { StreakDefinition, StreakCompletion, StreakProgress } from './types';
 
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 export function computeStreakProgress(def: StreakDefinition, completions: StreakCompletion[], todayStr: string): StreakProgress {
   // Sort completions by date ascending
   const sortedDates = [...new Set(completions.map(c => c.date))].sort();
@@ -12,7 +14,7 @@ export function computeStreakProgress(def: StreakDefinition, completions: Streak
     } else if (def.periodUnit === 'weeks') {
       d.setDate(d.getDate() + (def.periodAmount * 7));
     }
-    return d.toISOString().split('T')[0];
+    return iso(d);
   };
 
   let currentPeriodStart = def.createdAt;

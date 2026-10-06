@@ -112,15 +112,24 @@ export default function StreaksList() {
   const [definitions, setDefinitions] = useState<StreakDefinition[]>([]);
   const [completions, setCompletions] = useState<StreakCompletion[]>([]);
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const qDef = query(collection(db, 'streak_definitions'));
     const unsubDef = onSnapshot(qDef, (snap) => {
       setDefinitions(snap.docs.map(d => ({ id: d.id, ...d.data() } as StreakDefinition)));
+      setError(null);
+    }, (err) => {
+      console.error("Error fetching streak definitions:", err);
+      setError(`Permissions error: Update Firestore rules for 'streak_definitions' to allow reads.`);
     });
 
     const qComp = query(collection(db, 'streak_completions'));
     const unsubComp = onSnapshot(qComp, (snap) => {
       setCompletions(snap.docs.map(d => ({ id: d.id, ...d.data() } as StreakCompletion)));
+    }, (err) => {
+      console.error("Error fetching streak completions:", err);
+      setError(`Permissions error: Update Firestore rules for 'streak_completions' to allow reads.`);
     });
 
     return () => { unsubDef(); unsubComp(); };
@@ -152,7 +161,14 @@ export default function StreaksList() {
         <span className="text-[var(--mute)] text-[13px] mt-1 block">Consistency builds routines</span>
       </div>
       
-      {definitions.length === 0 ? (
+      {error && (
+        <div className="mb-6 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200">
+          <h3 className="font-semibold text-red-400 mb-1">Access Denied</h3>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {definitions.length === 0 && !error ? (
         <div className="glass p-6 text-center rounded-xl border border-[var(--line)]">
           <p className="text-[var(--mute)] text-[14px]">No habits being tracked yet.</p>
           <p className="text-[var(--ink)] font-medium mt-2">Ask the AI to create your first streak!</p>
