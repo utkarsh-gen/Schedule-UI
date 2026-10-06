@@ -9,6 +9,7 @@ import DonutChart from '@/components/DonutChart';
 import WeeklyCategoryList from '@/components/WeeklyCategoryList';
 import WeeklyPerformance from '@/components/WeeklyPerformance';
 import ProductivityAnalysis from '@/components/ProductivityAnalysis';
+import StreaksList from '@/components/StreaksList';
 import { ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -116,6 +117,8 @@ export default function Home() {
               );
             })}
           </section>
+
+          <StreaksList />
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">
             <section className="glass md:col-span-5">

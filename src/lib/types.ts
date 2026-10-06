@@ -22,3 +22,35 @@ export const CATEGORIES = {
 } as const;
 
 export type CategoryKey = keyof typeof CATEGORIES;
+
+// --- Streaks ---
+export type PeriodUnit = 'days' | 'weeks';
+
+export interface StreakDefinition {
+  id?: string;
+  name: string;
+  description?: string;
+  category?: string;
+  periodAmount: number;
+  periodUnit: PeriodUnit;
+  requiredCompletions: number;
+  createdAt: string;
+}
+
+export interface StreakCompletion {
+  id?: string;
+  streakId: string;
+  date: string; // YYYY-MM-DD
+}
+
+export interface StreakProgress {
+  definition: StreakDefinition;
+  currentStreak: number;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  completionsThisPeriod: number;
+  isCompletedThisPeriod: boolean;
+  isBroken: boolean;
+  daysRemainingInPeriod: number;
+  history: string[]; // dates of recent completions
+}
