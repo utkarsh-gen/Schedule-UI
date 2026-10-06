@@ -145,8 +145,6 @@ export default function StreaksList() {
     });
   };
 
-  if (definitions.length === 0) return null; // Don't show if no streaks are defined
-
   return (
     <section className="mt-8 mb-4">
       <div className="card-h mb-4">
@@ -154,11 +152,18 @@ export default function StreaksList() {
         <span className="text-[var(--mute)] text-[13px] mt-1 block">Consistency builds routines</span>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {progressList.map(p => (
-          <StreakCard key={p.definition.id} progress={p} onComplete={handleLogCompletion} />
-        ))}
-      </div>
+      {definitions.length === 0 ? (
+        <div className="glass p-6 text-center rounded-xl border border-[var(--line)]">
+          <p className="text-[var(--mute)] text-[14px]">No habits being tracked yet.</p>
+          <p className="text-[var(--ink)] font-medium mt-2">Ask the AI to create your first streak!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {progressList.map(p => (
+            <StreakCard key={p.definition.id} progress={p} onComplete={handleLogCompletion} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
