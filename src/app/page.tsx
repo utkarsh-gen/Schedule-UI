@@ -7,6 +7,8 @@ import RingChart from '@/components/RingChart';
 import BarChart from '@/components/BarChart';
 import DonutChart from '@/components/DonutChart';
 import WeeklyCategoryList from '@/components/WeeklyCategoryList';
+import WeeklyPerformance from '@/components/WeeklyPerformance';
+import ProductivityAnalysis from '@/components/ProductivityAnalysis';
 import { ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -191,7 +193,17 @@ export default function Home() {
             <WeeklyCategoryList entries={entries} />
           </section>
 
-          <section className="glass">
+          <div className="mb-4 mt-8">
+            <h2 className="text-[24px] font-[800] leading-none font-heading tracking-tight mb-4 text-white/90">Week-by-Week Performance</h2>
+            <WeeklyPerformance entries={entries} />
+          </div>
+
+          <div className="mb-4 mt-8">
+            <h2 className="text-[24px] font-[800] leading-none font-heading tracking-tight mb-4 text-white/90">Productivity Hours Analysis</h2>
+            <ProductivityAnalysis entries={entries} />
+          </div>
+
+          <section className="glass mt-8">
             <div className="card-h mb-4">
               <h2 className="text-[20px] font-semibold font-heading tracking-tight">All entries</h2>
               <div className="flex gap-1.5 flex-wrap">

@@ -4,9 +4,9 @@ import { CATEGORIES, CategoryKey, ScheduleEntry } from '@/lib/types';
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const dayOf = (o: number) => { const d = new Date(); d.setDate(d.getDate() - o); return d; };
 
-export default function DonutChart({ entries }: { entries: ScheduleEntry[] }) {
+export default function DonutChart({ entries, dates }: { entries: ScheduleEntry[], dates?: string[] }) {
   const K = Object.keys(CATEGORIES) as CategoryKey[];
-  const ds = Array.from({ length: 7 }, (_, i) => iso(dayOf(6 - i)));
+  const ds = dates || Array.from({ length: 7 }, (_, i) => iso(dayOf(6 - i)));
   const sum = (list: ScheduleEntry[], cat?: string) => list.filter(e => !cat || e.category === cat).reduce((a, e) => a + e.durationMinutes, 0);
 
   const WK = entries.filter(e => ds.includes(e.date));
