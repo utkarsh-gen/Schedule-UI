@@ -54,3 +54,12 @@ export interface StreakProgress {
   daysRemainingInPeriod: number;
   history: string[]; // dates of recent completions
 }
+
+// --- Routine Overrides ---
+import type { RoutineBlock } from './routine';
+
+export interface RoutineOverride {
+  date: string; // YYYY-MM-DD
+  blocks: RoutineBlock[];
+}
+

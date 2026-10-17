@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Target } from 'lucide-react';
 import { ScheduleEntry, CATEGORIES } from '@/lib/types';
-import { DEFAULT_ROUTINE } from '@/lib/routine';
+import { DEFAULT_ROUTINE, RoutineBlock } from '@/lib/routine';
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const mins = (t: string) => { const [h, m] = t.split(':'); return +h * 60 + +m; };
@@ -14,7 +14,17 @@ function getIntersection(start1: number, end1: number, start2: number, end2: num
   return Math.max(0, end - start);
 }
 
-export default function ProductivityAnalysis({ entries }: { entries: ScheduleEntry[] }) {
+interface ProductivityAnalysisProps {
+  entries: ScheduleEntry[];
+  routineOverrides?: Record<string, RoutineBlock[]>;
+  permissionWarning?: boolean;
+}
+
+export default function ProductivityAnalysis({
+  entries,
+  routineOverrides = {},
+  permissionWarning = false,
+}: ProductivityAnalysisProps) {
   const [weekOffset, setWeekOffset] = useState(0);
 
   const { weekLabel, isCurrentWeek, analysisDays, totalExpected, totalLogged, weekSegments } = useMemo(() => {
@@ -40,7 +50,9 @@ export default function ProductivityAnalysis({ entries }: { entries: ScheduleEnt
 
     const analysis = ds.map((dateStr, i) => {
       const dayOfWeek = (1 + i) % 7; // 0=Mon -> 1, 6=Sun -> 0
-      const blocks = DEFAULT_ROUTINE[dayOfWeek] || [];
+      const overrideBlocks = routineOverrides[dateStr];
+      const isOverridden = Array.isArray(overrideBlocks) && overrideBlocks.length > 0;
+      const blocks = isOverridden ? overrideBlocks : (DEFAULT_ROUTINE[dayOfWeek] || []);
       const prodBlocks = blocks.filter(b => b.type === 'productivity');
       
       const dayEntries = entries.filter(e => e.date === dateStr);
@@ -83,7 +95,8 @@ export default function ProductivityAnalysis({ entries }: { entries: ScheduleEnt
         dayName: datesObjs[i].toLocaleDateString('en-US', { weekday: 'short' }),
         expectedMins,
         totalLoggedMins,
-        segments
+        segments,
+        isOverridden
       };
     });
 
@@ -112,7 +125,7 @@ export default function ProductivityAnalysis({ entries }: { entries: ScheduleEnt
       });
 
     return { weekLabel: label, isCurrentWeek: weekOffset === 0, analysisDays: analysis, totalExpected: totalE, totalLogged: totalL, weekSegments };
-  }, [weekOffset, entries]);
+  }, [weekOffset, entries, routineOverrides]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -135,6 +148,12 @@ export default function ProductivityAnalysis({ entries }: { entries: ScheduleEnt
           <button onClick={() => setWeekOffset(p => p + 1)} disabled={isCurrentWeek} className="btn ghost p-2 !rounded-full disabled:opacity-50 disabled:cursor-not-allowed"><ChevronRight size={20} /></button>
         </div>
       </header>
+
+      {permissionWarning && (
+        <div className="flex items-center justify-between p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-200 text-xs">
+          <span>Notice: Routine overrides permission is pending in Firestore. Baseline routine is active.</span>
+        </div>
+      )}
 
       <div className="glass p-5">
         {totalExpected > 0 && (
@@ -180,6 +199,11 @@ export default function ProductivityAnalysis({ entries }: { entries: ScheduleEnt
                   <span className={`w-8 text-[13px] font-medium ${day.dateStr === iso(new Date()) ? 'text-[#4ade80]' : 'text-[var(--mute)]'}`}>
                     {day.dayName}
                   </span>
+                  {day.isOverridden && (
+                    <span className="text-[10px] font-semibold bg-[#4ade80]/15 text-[#4ade80] border border-[#4ade80]/30 px-1.5 py-0.5 rounded tracking-wide uppercase">
+                      Custom
+                    </span>
+                  )}
                   {day.expectedMins > 0 ? (
                     <span className="text-[12px] text-[var(--mute)] opacity-60">
                       {fmt(day.expectedMins)} available

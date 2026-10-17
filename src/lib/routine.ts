@@ -34,9 +34,9 @@ const coachingDay: RoutineBlock[] = [
 
 const sunday: RoutineBlock[] = [
   { id: "sleep_1", type: "sleep", title: "Sleep", startTime: "00:00", endTime: "05:00" },
-  { id: "prod_morn", type: "productivity", title: "Productivity Hours", startTime: "05:00", endTime: "08:00" },
-  { id: "coach", type: "coaching", title: "Coaching", startTime: "08:00", endTime: "14:30" },
-  { id: "prod_eve", type: "productivity", title: "Productivity Hours", startTime: "14:30", endTime: "21:00" },
+  { id: "morning", type: "morning_routine", title: "Morning Prep / Rest", startTime: "05:00", endTime: "08:00" },
+  { id: "coach", type: "coaching", title: "Coaching", startTime: "08:00", endTime: "15:00" },
+  { id: "prod", type: "productivity", title: "Productivity Hours", startTime: "15:00", endTime: "21:00" },
   { id: "wind", type: "wind_down", title: "Dinner/Wind-down", startTime: "21:00", endTime: "22:00" },
   { id: "sleep_2", type: "sleep", title: "Sleep", startTime: "22:00", endTime: "23:59" }
 ];

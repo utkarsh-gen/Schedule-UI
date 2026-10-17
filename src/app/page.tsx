@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ScheduleEntry, CATEGORIES, CategoryKey } from '@/lib/types';
+import { RoutineBlock } from '@/lib/routine';
 import RingChart from '@/components/RingChart';
 import BarChart from '@/components/BarChart';
 import DonutChart from '@/components/DonutChart';
@@ -19,6 +20,8 @@ const mins = (t: string) => { const [h, m] = t.split(':'); return +h * 60 + +m; 
 
 export default function Home() {
   const [entries, setEntries] = useState<ScheduleEntry[]>([]);
+  const [routineOverrides, setRoutineOverrides] = useState<Record<string, RoutineBlock[]>>({});
+  const [overridesPermissionError, setOverridesPermissionError] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,28 @@ export default function Home() {
         setError(err.message);
       }
       setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Real-time listener for routine overrides (e.g. customized productivity hours)
+    const q = query(collection(db, 'routine_overrides'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const overridesMap: Record<string, RoutineBlock[]> = {};
+      snapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.blocks) {
+          overridesMap[doc.id] = data.blocks as RoutineBlock[];
+        }
+      });
+      setRoutineOverrides(overridesMap);
+      setOverridesPermissionError(false);
+    }, (err) => {
+      console.warn("routine_overrides listener warning:", err.message);
+      if (err.message.includes('permission')) {
+        setOverridesPermissionError(true);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -203,7 +228,11 @@ export default function Home() {
 
           <div className="mb-4 mt-8">
             <h2 className="text-[24px] font-[800] leading-none font-heading tracking-tight mb-4 text-white/90">Productivity Hours Analysis</h2>
-            <ProductivityAnalysis entries={entries} />
+            <ProductivityAnalysis
+              entries={entries}
+              routineOverrides={routineOverrides}
+              permissionWarning={overridesPermissionError}
+            />
           </div>
 
           <section className="glass mt-8">
