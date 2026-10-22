@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { DEFAULT_ROUTINE, RoutineBlock } from '@/lib/routine';
@@ -74,7 +75,11 @@ export default function RoutinePage() {
     <div className="max-w-[1240px] mx-auto px-5 pt-7 pb-15">
       <header className="flex justify-between items-end gap-4 flex-wrap mb-6 border-b border-[var(--line)] pb-5">
         <div>
-          <a href="/" className="text-[14px] text-[var(--mute)] hover:text-white transition-colors mb-2 inline-block underline underline-offset-4">&larr; Back to Dashboard</a>
+          <div className="flex items-center gap-3 mb-2 flex-wrap text-[14px]">
+            <Link href="/" className="text-[var(--mute)] hover:text-white transition-colors inline-block underline underline-offset-4">&larr; Back to Dashboard</Link>
+            <span className="text-[var(--mute)]">•</span>
+            <Link href="/work" className="text-[#4ade80] hover:text-white transition-colors inline-block underline underline-offset-4 font-semibold">Work Management &rarr;</Link>
+          </div>
           <h1 className="text-[clamp(30px,5vw,42px)] font-[800] leading-none font-heading tracking-tight mt-2">
             General Routine
           </h1>
